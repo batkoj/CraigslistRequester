@@ -71,18 +71,18 @@ async function process(listings, isWorthy) {
 
 function isTopFloor(postingTitle) {
   if (postingTitle == null) return false;
-  
+
   const lowerCaseTitle = postingTitle.toLowerCase();
 
   return (lowerCaseTitle.includes('top')
     || lowerCaseTitle.includes('penthouse')
     // || lowerCaseTitle.includes('floor')
-	|| lowerCaseTitle.includes('upper')) 
-	&& 	!lowerCaseTitle.includes('sub penthouse')
-	&& 	!lowerCaseTitle.includes('sub-penthouse')
-	&& 	!lowerCaseTitle.includes('subpenthouse')
-	&& 	!lowerCaseTitle.includes('ground floor')
-	&& 	!lowerCaseTitle.includes('ground-floor')
+    || lowerCaseTitle.includes('upper'))
+    && !lowerCaseTitle.includes('sub penthouse')
+    && !lowerCaseTitle.includes('sub-penthouse')
+    && !lowerCaseTitle.includes('subpenthouse')
+    && !lowerCaseTitle.includes('ground floor')
+    && !lowerCaseTitle.includes('ground-floor')
 }
 
 async function processGeoCluster(element, isWorthy) {
