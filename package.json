@@ -1,5 +1,5 @@
 {
-  "name": "QueryCraigslist",
+  "name": "CraigslistRequester",
   "description": "A simple script for querying craigslist for apartments and sending an email if there is a match.",
   "author": "Jiri",
   "scripts": {
