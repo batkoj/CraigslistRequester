@@ -50,7 +50,7 @@ async function process(listings, isWorthy) {
 
     return Promise.all(
       listings.map(async element => {
-        console.log(`Processing ${element.PostingID} ${element.PostingTitle}`);
+        console.log(`Processing ${element.PostingID} ${element.PostingTitle}  (${element.PostingURL})`);
 
         if (element.PostingTitle == null) {
           await processGeoCluster(element, isWorthy);
@@ -90,11 +90,13 @@ async function processGeoCluster(element, isWorthy) {
   console.log('GeoCluster....IDs:' + geoClusterIDs);
 
   let allInCluster = await request(`https://vancouver.craigslist.org${element.url}`, { json: true });
-  let wanted = allInCluster[0].filter(x => geoClusterIDs.some(y => y == x.PostingID));
-  console.log(`Wanted: ${wanted.length}`);
+  let filtered = allInCluster[0].filter(x => geoClusterIDs.some(y => y == x.PostingID));
+  console.log(`Filtered: ${filtered.length}`);
 
-  for (item of wanted) {
+  for (item of filtered) {
+    console.log(`Processing in GeoCluster ${item.PostingID} ${item.PostingTitle}  (${item.PostingURL})`);
     if (isWorthy(item.PostingTitle)) {
+      console.log('WORTHY IN GEOCLUSTER!');
       await checkIfExists(item);
     }
   }
