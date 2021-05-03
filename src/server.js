@@ -2,16 +2,13 @@ const request = require("request-promise");
 var AWS = require('aws-sdk');
 const moment = require('moment');
 const schedule = require('node-schedule');
-const fs = require('fs');
 
-let rawConfig = fs.readFileSync('./src/config.json');
-let CONFIG = JSON.parse(rawConfig);
-
-AWS.config.update({ region: 'us-east-1', accessKeyId: CONFIG.AWS_ACCESS_KEY_ID,  secretAccessKey: CONFIG.AWS_SECRET_ACCESS_KEY });
+AWS.config.update({ region: 'us-east-1', accessKeyId: process.env.AWS_ACCESS_KEY_ID,  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY });
 const REFRESH_IN_MIN = 30;
 const HOURS_OF_OPERATION = '07-23';
 
 // TO RUN:
+// set the following env variables: KVDB_TOKEN, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, EMAIL
 // node src/server.js
 
 // TO RUN BABEL:
@@ -36,15 +33,15 @@ async function main() {
 
   console.log('-----------------------------------------------TOP FLOOR PLACES ALL DATES----------------------------------------');
   let result = await request('https://vancouver.craigslist.org/jsonsearch/apa/?postedToday=1&search_distance=6&postal=V6B3H8&min_price=1700&max_price=2200&availabilityMode=0&sale_date=all+dates', { json: true });
-  await process(result[0], isTopFloor)
+  await processListings(result[0], isTopFloor)
 
   // console.log('------------------------------------------------AFTER 30 DAYS---------------------------------------------');
   // result = await request('https://vancouver.craigslist.org/jsonsearch/apa/?postedToday=1&search_distance=6&postal=V6Z3H8&min_price=1700&max_price=2100&availabilityMode=2&laundry=1&sale_date=all+dates', { json: true });
-  // await process(result[0], () => true);
+  // await processListings(result[0], () => true);
 }
 
 
-async function process(listings, isWorthy) {
+async function processListings(listings, isWorthy) {
   if (listings) {
     // console.log(result);
 
@@ -104,7 +101,7 @@ async function processGeoCluster(element, isWorthy) {
 
 async function checkIfExists(element) {
   console.log(`Checking ${element.PostingID}`);
-  return await request(`https://kvdb.io/${CONFIG.KVDB_TOKEN}/${element.PostingID}`, { json: true })
+  return await request(`https://kvdb.io/${process.env.KVDB_TOKEN}/${element.PostingID}`, { json: true })
         .then(function (body) {
           console.log(`${element.PostingID} already exists`);
         })
@@ -113,7 +110,7 @@ async function checkIfExists(element) {
 
           console.log(`Storing ${element.PostingID} ${element.PostingTitle}`);
           request({
-            url: `https://kvdb.io/${CONFIG.KVDB_TOKEN}/${element.PostingID}`,
+            url: `https://kvdb.io/${process.env.KVDB_TOKEN}/${element.PostingID}`,
             method: 'POST',
             json: 'T'
           });
@@ -126,7 +123,7 @@ function sendEmail() {
   var params = {
     Destination: { 
       ToAddresses: [
-        CONFIG.EMAIL
+        process.env.EMAIL
       ]
     },
     Message: { 
@@ -141,7 +138,7 @@ function sendEmail() {
         Data: 'New listings'
       }
     },
-    Source: CONFIG.EMAIL
+    Source: process.env.EMAIL
   };
 
   // create the promise and SES service object
